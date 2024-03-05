@@ -1,0 +1,49 @@
+HandleJoypad0: subroutine
+	jsr ReadJoypad0;
+        sta input0;
+
+	; Left Key
+        cmp #$02
+        bne .noLeft
+        dec scrollX  
+        
+.noLeft 
+	; Right Key
+        lda input0
+        cmp #$01
+        bne .noRight
+        inc scrollX
+        
+.noRight
+        ; Up Key
+        lda input0 
+        cmp #$08
+        bne .noUp
+        dec scrollY
+            
+.noUp
+        ; Down Key
+        lda input0  
+        cmp #$04
+        bne .noDown
+        inc scrollY
+        
+.noDown
+        ; A
+        jmp .noSpace
+        lda input0  
+        
+.noA
+        ; B
+        lda input0
+        
+.noB
+        ; Start
+        lda input0
+        
+.noStart
+        ; Space
+        lda input0
+    
+.noSpace
+	rts
