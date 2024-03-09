@@ -1,5 +1,4 @@
 ;;;;; SUBROUTINES
-
 ClearRAM: subroutine
 	lda #0		; A = 0
         tax		; X = 0
@@ -26,13 +25,13 @@ WaitSync:
         rts
 
 ;;;;; RANDOM NUMBERS
-
 NextRandom subroutine
 	lsr
         bcc .NoEor
         eor #$d4
 .NoEor:
 	rts
+        
 ; Get previous random value
 PrevRandom subroutine
 	asl
@@ -41,8 +40,7 @@ PrevRandom subroutine
 .NoEor:
         rts
 
-;;;;; CONTROLLER READING
-
+; CONTROLLER READING
 ReadJoypad0 subroutine
 	ldy #0
 ReadJoypadY

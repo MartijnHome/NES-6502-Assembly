@@ -1,131 +1,137 @@
-
-	include "jroatch.chr"
 	include "nesdefs.dasm"
 
 ;;;;; VARIABLES
-
 	seg.u ZEROPAGE
 	org $0
-        
-scrollX byte;
-scrollY byte;
-
-input0 byte;
-
-
+       
+player_x 	byte
+player_y 	byte
+joypad_0_in	byte
+scroll_pos	word
+game_state	byte
+SpriteBuf	equ	$200
+Temp1		byte
 
 ;;;;; NES CARTRIDGE HEADER
-
-	NES_HEADER 0, 2, 1, NES_MIRR_QUAD ; mapper 0, 2 PRGs, 1 CHR
+	NES_HEADER 0,2,2,NES_MIRR_QUAD
 
 
 
 ;;;;; START OF CODE
-
 Start:
-	NES_INIT		; set up stack pointer, turn off PPU
+	NES_INIT
         jsr WaitSync
         jsr WaitSync
         jsr ClearRAM
-        jsr WaitSync		;wait for VSYNC
-	jsr SetPalette		;set colors
-        jsr FillVRAM		;set PPU RAM
-        jsr WaitSync		;wait for VSYNC (and PPU warmup)
+        jsr WaitSync	; PPU Warmup
+        
+	jsr SetPalette		
+        jsr FillVRAM		
+        jsr WaitSync
+        jsr InitSprites
         lda #0
         sta PPU_ADDR
-        sta PPU_ADDR		;PPU addr = 0
+        sta PPU_ADDR		
         sta PPU_SCROLL
-        sta PPU_SCROLL		;scroll = 0
+        sta PPU_SCROLL		
         lda #MASK_BG|MASK_SPR
         sta PPU_MASK 	; enable rendering
         lda #CTRL_NMI
         sta PPU_CTRL	; enable NMI
         
-.endless
-	jmp .endless		;endless loop
+        ldx #$00
+        stx game_state
+        
+Gameloop:
+	jmp Gameloop
 
 
 
-;;;;; STARTUP ROUTINES
-
-SetPalette: subroutine
-	PPU_SETADDR $3f00
-        ldy #0
-.loop:
-	lda Palette,y	; lookup byte in ROM
-	sta PPU_DATA	; store byte to PPU data
-        iny		; Y = Y + 1
-        cpy #32		; is Y equal to 32?
-	bne .loop	; not yet, loop
-        rts		; return to caller
-
-
-FillVRAM: subroutine
-	PPU_SETADDR $2000
-	ldy #$10
-        ldx #0
-.loop:
-	stx PPU_DATA
-	inx
-	bne .loop
-	dey
-	bne .loop
-        rts
+;;;;; INCLUDES
+	include "nesppu.dasm"
 
 
 
 ;;;;; COMMON SUBROUTINES
+SetPalette:subroutine
+	PPU_SETADDR $3f00
+        ldy #0
+.loop:
+	lda Palette,y	; lookup byte in constant data -> palette
+	sta PPU_DATA
+        iny		
+        cpy #32		
+	bne .loop	; repeat until Y is 32	
+        rts			
 
-	include "nesppu.dasm"
-	include "input.dasm"
+
+
+FillVRAM:subroutine
+	PPU_SETADDR $2000
+	ldy #$10
+        ldx #0
+.loop:
+	stx PPU_DATA	
+	inx		
+	bne .loop	; repeat until X is 256
+	dey		
+	bne .loop	; repeat until Y is 0
+        rts		
+
+
+        
+; initialize OAM data
+InitSprites: subroutine
+	lda #1		; A = 1
+        ldx #0		; X = 0
+.loop
+	sta SpriteBuf,x	; store to OAM buffer
+        jsr NextRandom	; get next random number
+        inx		; X = X + 1
+        bne .loop	; loop until X wraps
+        rts		; return to caller  
+        
+        
+        
+;;;;; CONSTANT DATA
+Palette:
+	hex 01		; background
+	hex 01112100	; background 0
+        hex 02122200	; background 1
+        hex 02112100	; background 2
+        hex 01122200	; background 3
+        hex 19293900	; sprite 0
+        hex 1a2a3a00	; sprite 1
+        hex 1b2b3b00	; sprite 2
+        hex 1c2c3c	; sprite 3
 
 
 
 ;;;;; INTERRUPT HANDLERS
-
-NMIHandler: subroutine
+NMIHandler:
 	SAVE_REGS
         
-        jsr HandleJoypad0
-        jsr HandleScrolling
+        jsr HandleJoypad1
+        jsr ScrollScreen
+     	jsr HandleSprites
         
 	RESTORE_REGS
 	rti
 
 
-HandleScrolling: subroutine
-	ldx scrollX;
-        stx PPU_SCROLL, scrollX;
-        ldx scrollY;
-        stx PPU_SCROLL, scrollY;
-	rts
-        
 
-      
-; CONSTANTS
+;;;;; IRQ SUBROUTINES
+	include "joypad.dasm"
+	include "screen.dasm"
+	include "sprites.dasm"
 
-Palette:
-	hex 1f		;screen color
-	hex 01112100	;background 0
-        hex 02122200	;background 1
-        hex 02112100	;background 2
-        hex 01122200	;background 3
-        hex 19293900	;sprite 0
-        hex 1a2a3a00	;sprite 1
-        hex 1b2b3b00	;sprite 2
-        hex 1c2c3c	;sprite 3
-        
-        
-        
+
+
 ;;;;; CPU VECTORS
-
 	NES_VECTORS
-        
+
 
 
 ;;;;; TILE SETS
-
 	org $10000
-        incbin "jroatch.chr"
-        incbin "jroatch.chr"
-
+        incbin "jroatch.chr"   

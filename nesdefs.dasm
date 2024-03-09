@@ -1,8 +1,6 @@
-
 	processor 6502
 
 ;;;;; CONSTANTS
-
 PPU_CTRL	= $2000
 PPU_MASK	= $2001
 PPU_STATUS	= $2002
@@ -65,14 +63,13 @@ F_WIGNORE	= %00010000 	; VRAM Writes currently ignored.
 
 
 ;;;;; CARTRIDGE FILE HEADER
-
 NES_MIRR_HORIZ	= 0
 NES_MIRR_VERT	= 1
 NES_MIRR_QUAD	= 8
-
 	MAC NES_HEADER
 	seg Header
 	org $7ff0
+        
 .NES_MAPPER	SET {1}	;mapper number
 .NES_PRG_BANKS	SET {2}	;number of 16K PRG banks, change to 2 for NROM256
 .NES_CHR_BANKS	SET {3}	;number of 8K CHR banks (0 = RAM)
@@ -81,14 +78,13 @@ NES_MIRR_QUAD	= 8
 	byte .NES_PRG_BANKS
 	byte .NES_CHR_BANKS
 	byte .NES_MIRRORING|(.NES_MAPPER<<4)
-	byte .NES_MAPPER & $f0
+	byte .NES_MAPPER&$f0
 	byte 0,0,0,0,0,0,0,0 ; reserved, set to zero
 	seg Code
 	org $8000
 	ENDM
 
-;;;;; NES_INIT SETUP MACRO (place at start)
-        
+;;;;; NES_INIT SETUP MACRO (place at start)   
         MAC NES_INIT
         sei			;disable IRQs
         cld			;decimal mode not supported
@@ -107,7 +103,6 @@ NES_MIRR_QUAD	= 8
         ENDM
 
 ;;;;; NES_VECTORS - CPU vectors at end of address space
-
 	MAC NES_VECTORS
 	seg Vectors		; segment "Vectors"
 	org $fffa		; start at address $fffa
@@ -117,7 +112,6 @@ NES_MIRR_QUAD	= 8
 	ENDM
 
 ;;;;; PPU_SETADDR <address> - set 16-bit PPU address
-
 	MAC PPU_SETADDR
         lda #>{1}	; upper byte
         sta PPU_ADDR
@@ -125,15 +119,13 @@ NES_MIRR_QUAD	= 8
         sta PPU_ADDR
         ENDM
 
-;;;;; PPU_SETVALUE <value> - feed 8-bit value to PPU
-        
+;;;;; PPU_SETVALUE <value> - feed 8-bit value to PPU   
         MAC PPU_SETVALUE
         lda #{1}
         sta PPU_DATA
         ENDM
 
 ;;;;; SAVE_REGS - save A/X/Y registers
-
         MAC SAVE_REGS
         pha
         txa
@@ -143,7 +135,6 @@ NES_MIRR_QUAD	= 8
         ENDM
 
 ;;;;; RESTORE_REGS - restore Y/X/A registers
-
         MAC RESTORE_REGS
         pla
         tay

@@ -1,0 +1,10 @@
+ScrollScreen:subroutine
+        lda scroll_pos
+        sta PPU_SCROLL
+        lda scroll_pos + 1
+        sta PPU_SCROLL
+        and #1		; select its low bit
+	ora #CTRL_NMI	; set rest of bits
+        sta PPU_CTRL
+        rts
+        

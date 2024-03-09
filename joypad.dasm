@@ -1,0 +1,35 @@
+HandleJoypad1:subroutine
+ 	jsr ReadJoypad0
+        sta joypad_0_in
+        and #$01
+	cmp #$01
+        bne .noRight
+        
+        ;RIGHT KEY PRESSED
+        inc scroll_pos
+.noRight
+	lda joypad_0_in
+        and #$02
+        cmp #$02
+        bne .noLeft
+        
+        ;LEFT KEY PRESSED
+        dec scroll_pos
+.noLeft
+	lda joypad_0_in
+        and #$04
+        cmp #$04
+        bne .noDown
+        
+        ;DOWN KEY PRESSED
+        inc scroll_pos + 1
+.noDown
+	lda joypad_0_in
+        and #$08
+        cmp #$08
+        bne .noUp
+        
+        ;UP KEY PRESSED
+        dec scroll_pos + 1
+.noUp
+	rts

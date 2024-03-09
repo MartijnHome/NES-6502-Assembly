@@ -1,0 +1,22 @@
+HandleSprites: subroutine
+	lda #$02	; page 2 ($0200)
+        sta PPU_OAM_DMA	; start DMA transfer
+	jsr MoveSprites	; move sprites
+        rts
+        
+
+
+MoveSprites: subroutine
+	lda #1		; A = 1
+        ldx #0		; X = 0
+.loop
+	sta Temp1	; save A
+        and #3		; keep lower 2 bits
+        clc		; clear carry before add
+        adc SpriteBuf,x	; add to sprite buffer
+	sta SpriteBuf,x ; store in sprite buffer
+        lda Temp1	; restore A
+        jsr NextRandom	; get next random number
+       	inx		; X = X + 1
+        bne .loop	; loop until X wraps
+        rts		; return to caller      
