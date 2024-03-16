@@ -1,4 +1,4 @@
-HandleJoypad1:subroutine
+HandleJoypad0:subroutine
  	jsr ReadJoypad0
         sta joypad_0_in
         and #$01
@@ -6,7 +6,8 @@ HandleJoypad1:subroutine
         bne .noRight
         
         ;RIGHT KEY PRESSED
-        inc scroll_pos
+        inc player_x
+        inc player_x
 .noRight
 	lda joypad_0_in
         and #$02
@@ -14,7 +15,8 @@ HandleJoypad1:subroutine
         bne .noLeft
         
         ;LEFT KEY PRESSED
-        dec scroll_pos
+        dec player_x
+        dec player_x
 .noLeft
 	lda joypad_0_in
         and #$04
@@ -22,7 +24,8 @@ HandleJoypad1:subroutine
         bne .noDown
         
         ;DOWN KEY PRESSED
-        inc scroll_pos + 1
+        inc player_y
+        inc player_y
 .noDown
 	lda joypad_0_in
         and #$08
@@ -30,6 +33,21 @@ HandleJoypad1:subroutine
         bne .noUp
         
         ;UP KEY PRESSED
-        dec scroll_pos + 1
+        dec player_y
+        dec player_y
 .noUp
+	lda joypad_0_in
+        and #$80
+        cmp #$80
+        bne .noSpace
+        
+        ;SPACE KEY PRESSED
+        lda bullet_y
+        cmp #$FA
+        bne .noSpace ;Bullet already fired, skip
+        lda player_x
+        sta bullet_x
+        lda player_y
+        sta bullet_y
+.noSpace
 	rts

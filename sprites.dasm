@@ -1,3 +1,22 @@
+; VARIABLES
+total_sprites	byte #8 ; 4
+
+
+
+; ROUTINES
+InitSprites: subroutine
+	lda #1		; A = 1
+        ldx #0		; X = 0
+.loop
+	sta SpriteBuf,x	; store to OAM buffer
+        jsr NextRandom	; get next random number
+        inx		; X = X + 1
+        cpx total_sprites
+        bne .loop	; loop until X wraps
+        rts		; return to caller  
+        
+        
+
 HandleSprites: subroutine
 	lda #$02	; page 2 ($0200)
         sta PPU_OAM_DMA	; start DMA transfer
@@ -7,6 +26,49 @@ HandleSprites: subroutine
 
 
 MoveSprites: subroutine
+	; Handle player
+	lda player_y
+        ldx #0
+        sta SpriteBuf,x
+        lda #$0
+        sta SpriteBuf,x+2
+        lda player_x
+        sta SpriteBuf,x + 3
+        
+        ; Check if bullet is fired
+        lda bullet_y
+        cmp #$FA
+        beq .skipBullet
+        
+        ; Increase bullet x
+        ldx bullet_x
+        inx
+        inx
+        txa
+        
+     	; Compare if bullet x is bigger than screen width
+        cmp #$FA
+        bcs .hideBullet
+        stx bullet_x
+      	
+        ; Draw bullet
+        lda bullet_y
+        ldx #4
+        sta SpriteBuf,x
+        lda #$0
+        sta SpriteBuf,x+2
+        lda bullet_x
+        sta SpriteBuf,x + 3
+        
+	rts
+        
+.hideBullet
+	lda #$FA
+        sta bullet_y
+.skipBullet
+        rts
+        
+        ; -- SKIPPED
 	lda #1		; A = 1
         ldx #0		; X = 0
 .loop
@@ -18,5 +80,6 @@ MoveSprites: subroutine
         lda Temp1	; restore A
         jsr NextRandom	; get next random number
        	inx		; X = X + 1
+        cpx total_sprites
         bne .loop	; loop until X wraps
         rts		; return to caller      

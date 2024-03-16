@@ -11,9 +11,13 @@ scroll_pos	word
 game_state	byte
 SpriteBuf	equ	$200
 Temp1		byte
+bullet_x	byte
+bullet_y	byte
+
+
 
 ;;;;; NES CARTRIDGE HEADER
-	NES_HEADER 0,2,2,NES_MIRR_QUAD
+	NES_HEADER 0,2,2,NES_MIRR_VERT
 
 
 
@@ -23,13 +27,12 @@ Start:
         jsr WaitSync
         jsr WaitSync
         jsr ClearRAM
-        jsr WaitSync	; PPU Warmup
-        
+        jsr WaitSync
 	jsr SetPalette		
         jsr FillVRAM		
         jsr WaitSync
         jsr InitSprites
-        lda #0
+	lda #0
         sta PPU_ADDR
         sta PPU_ADDR		
         sta PPU_SCROLL
@@ -71,47 +74,36 @@ FillVRAM:subroutine
 	ldy #$10
         ldx #0
 .loop:
-	stx PPU_DATA	
-	inx		
+	lda #$8
+	sta PPU_DATA	
+	;stx PPU_DATA
+        inx		
 	bne .loop	; repeat until X is 256
 	dey		
 	bne .loop	; repeat until Y is 0
         rts		
 
-
-        
-; initialize OAM data
-InitSprites: subroutine
-	lda #1		; A = 1
-        ldx #0		; X = 0
-.loop
-	sta SpriteBuf,x	; store to OAM buffer
-        jsr NextRandom	; get next random number
-        inx		; X = X + 1
-        bne .loop	; loop until X wraps
-        rts		; return to caller  
-        
         
         
 ;;;;; CONSTANT DATA
 Palette:
-	hex 01		; background
-	hex 01112100	; background 0
-        hex 02122200	; background 1
-        hex 02112100	; background 2
-        hex 01122200	; background 3
+	hex 00		; background
+	hex 0E0E0E0E	; background 0
+        hex 2D2D2D2D	; background 1
+        hex 2D2D2D2D	; background 2
+        hex 2D2D2D2D	; background 3
         hex 19293900	; sprite 0
-        hex 1a2a3a00	; sprite 1
-        hex 1b2b3b00	; sprite 2
-        hex 1c2c3c	; sprite 3
+        hex 19293900	; sprite 1
+        hex 19293900	; sprite 2
+        hex 19293900	; sprite 3
 
 
 
 ;;;;; INTERRUPT HANDLERS
 NMIHandler:
 	SAVE_REGS
-        
-        jsr HandleJoypad1
+        inc scroll_pos
+        jsr HandleJoypad0
         jsr ScrollScreen
      	jsr HandleSprites
         
