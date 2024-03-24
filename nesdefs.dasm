@@ -62,6 +62,8 @@ F_SCAN8		= %00100000 	; More than 8 sprites on current scanline
 F_WIGNORE	= %00010000 	; VRAM Writes currently ignored.
 
 
+OFF_SCREEN	= $FA
+
 ;;;;; CARTRIDGE FILE HEADER
 NES_MIRR_HORIZ	= 0
 NES_MIRR_VERT	= 1

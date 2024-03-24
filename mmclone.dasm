@@ -12,7 +12,7 @@ game_state	byte
 SpriteBuf	equ	$200
 Temp1		byte
 bullet_x	byte
-bullet_y	byte
+bullet_y	byte	#OFF_SCREEN
 
 
 

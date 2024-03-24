@@ -1,5 +1,7 @@
 ; VARIABLES
 total_sprites	byte #8 ; 4
+BULLET_SPEED 	byte #4;
+
 
 
 
@@ -31,32 +33,31 @@ MoveSprites: subroutine
         ldx #0
         sta SpriteBuf,x
         lda #$0
-        sta SpriteBuf,x+2
+        sta SpriteBuf,x + 2
         lda player_x
         sta SpriteBuf,x + 3
         
         ; Check if bullet is fired
         lda bullet_y
-        cmp #$FA
+        cmp #OFF_SCREEN
         beq .skipBullet
         
         ; Increase bullet x
-        ldx bullet_x
-        inx
-        inx
-        txa
+        clc
+        lda bullet_x
+        adc BULLET_SPEED
         
      	; Compare if bullet x is bigger than screen width
-        cmp #$FA
+        cmp #OFF_SCREEN
         bcs .hideBullet
-        stx bullet_x
+        sta bullet_x
       	
         ; Draw bullet
         lda bullet_y
         ldx #4
         sta SpriteBuf,x
         lda #$0
-        sta SpriteBuf,x+2
+        sta SpriteBuf,x + 2
         lda bullet_x
         sta SpriteBuf,x + 3
         
@@ -65,6 +66,7 @@ MoveSprites: subroutine
 .hideBullet
 	lda #$FA
         sta bullet_y
+        
 .skipBullet
         rts
         
