@@ -48,7 +48,6 @@ MoveSprites: subroutine
         adc BULLET_SPEED
         
      	; Compare if bullet x is bigger than screen width
-        cmp #OFF_SCREEN
         bcs .hideBullet
         sta bullet_x
       	

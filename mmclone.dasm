@@ -4,8 +4,10 @@
 	seg.u ZEROPAGE
 	org $0
        
+temp_x		byte
+temp_y		byte
 player_x 	byte
-player_y 	byte
+player_y 	byte	
 joypad_0_in	byte
 scroll_pos	word
 game_state	byte
@@ -36,7 +38,7 @@ Start:
         sta PPU_ADDR
         sta PPU_ADDR		
         sta PPU_SCROLL
-        sta PPU_SCROLL		
+        sta PPU_SCROLL	
         lda #MASK_BG|MASK_SPR
         sta PPU_MASK 	; enable rendering
         lda #CTRL_NMI
@@ -44,7 +46,9 @@ Start:
         
         ldx #$00
         stx game_state
-        
+        ldx #122
+        stx player_y
+        stx player_x
 Gameloop:
 	jmp Gameloop
 
@@ -55,58 +59,16 @@ Gameloop:
 
 
 
-;;;;; COMMON SUBROUTINES
-SetPalette:subroutine
-	PPU_SETADDR $3f00
-        ldy #0
-.loop:
-	lda Palette,y	; lookup byte in constant data -> palette
-	sta PPU_DATA
-        iny		
-        cpy #32		
-	bne .loop	; repeat until Y is 32	
-        rts			
 
-
-
-FillVRAM:subroutine
-	PPU_SETADDR $2000
-	ldy #$10
-        ldx #0
-.loop:
-	lda #$8
-	sta PPU_DATA	
-	;stx PPU_DATA
-        inx		
-	bne .loop	; repeat until X is 256
-	dey		
-	bne .loop	; repeat until Y is 0
-        rts		
-
-        
-        
-;;;;; CONSTANT DATA
-Palette:
-	hex 00		; background
-	hex 0E0E0E0E	; background 0
-        hex 2D2D2D2D	; background 1
-        hex 2D2D2D2D	; background 2
-        hex 2D2D2D2D	; background 3
-        hex 19293900	; sprite 0
-        hex 19293900	; sprite 1
-        hex 19293900	; sprite 2
-        hex 19293900	; sprite 3
 
 
 
 ;;;;; INTERRUPT HANDLERS
 NMIHandler:
 	SAVE_REGS
-        inc scroll_pos
-        jsr HandleJoypad0
         jsr ScrollScreen
+        jsr HandleJoypad0
      	jsr HandleSprites
-        
 	RESTORE_REGS
 	rti
 
