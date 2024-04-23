@@ -1,8 +1,12 @@
 	include "nesdefs.dasm"
-
-;;;;; VARIABLES
 	seg.u ZEROPAGE
 	org $0
+       
+PLAYER_START_X 	= #80
+PLAYER_START_Y 	= #112
+OUT_OF_BOUNDS_Y = #$FA
+TOTAL_SPRITES 	= #8
+BULLET_SPEED 	= #4       
        
 temp_x		byte
 temp_y		byte
@@ -14,7 +18,8 @@ game_state	byte
 SpriteBuf	equ	$200
 Temp1		byte
 bullet_x	byte
-bullet_y	byte	#OFF_SCREEN
+bullet_y	byte
+
 
 
 
@@ -30,27 +35,18 @@ Start:
         jsr WaitSync
         jsr ClearRAM
         jsr WaitSync
-	jsr SetPalette		
-        jsr FillVRAM		
-        jsr WaitSync
-        jsr InitSprites
-	lda #0
-        sta PPU_ADDR
-        sta PPU_ADDR		
-        sta PPU_SCROLL
-        sta PPU_SCROLL	
-        lda #MASK_BG|MASK_SPR
-        sta PPU_MASK 	; enable rendering
-        lda #CTRL_NMI
-        sta PPU_CTRL	; enable NMI
+	jsr InitGame
         
-        ldx #$00
-        stx game_state
-        ldx #122
-        stx player_y
-        stx player_x
 Gameloop:
 	jmp Gameloop
+
+
+
+InitGame subroutine
+        jsr InitLevel
+        ldx #1
+        stx game_state
+        rts
 
 
 
@@ -59,17 +55,13 @@ Gameloop:
 
 
 
-
-
-
-
 ;;;;; INTERRUPT HANDLERS
 NMIHandler:
-	SAVE_REGS
+	;SAVE_REGS
         jsr ScrollScreen
         jsr HandleJoypad0
      	jsr HandleSprites
-	RESTORE_REGS
+	;RESTORE_REGS
 	rti
 
 
@@ -78,6 +70,7 @@ NMIHandler:
 	include "joypad.dasm"
 	include "screen.dasm"
 	include "sprites.dasm"
+	include "level.dasm"
 
 
 

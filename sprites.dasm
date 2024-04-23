@@ -1,21 +1,31 @@
-; VARIABLES
-total_sprites	byte #8 ; 4
-BULLET_SPEED 	byte #4;
-
-
-
-
-; ROUTINES
 InitSprites: subroutine
-	lda #1		; A = 1
-        ldx #0		; X = 0
-.loop
-	sta SpriteBuf,x	; store to OAM buffer
-        jsr NextRandom	; get next random number
-        inx		; X = X + 1
-        cpx total_sprites
-        bne .loop	; loop until X wraps
-        rts		; return to caller  
+	; player
+ 	ldx #0
+	lda #PLAYER_START_Y
+        sta SpriteBuf,x
+        sta player_y
+        lda #31
+        sta SpriteBuf,x + 1
+        lda #%00011000
+        sta SpriteBuf,x + 2
+        lda #PLAYER_START_X
+        sta SpriteBuf,x + 3
+        sta player_x
+        
+	; bullet
+       	ldx #4
+	lda #OUT_OF_BOUNDS_Y
+        sta SpriteBuf,x
+        sta bullet_y
+        lda #31
+        sta SpriteBuf,x + 1
+        lda #32
+        sta SpriteBuf,x + 2
+        lda #PLAYER_START_X
+        sta SpriteBuf,x + 3
+        sta bullet_x
+        rts
+        
         
         
 
@@ -32,55 +42,35 @@ MoveSprites: subroutine
 	lda player_y
         ldx #0
         sta SpriteBuf,x
-        lda #$0
-        sta SpriteBuf,x + 2
         lda player_x
         sta SpriteBuf,x + 3
         
-        ; Check if bullet is fired
+        ; Check if bullet is fired (not out of bounds)
         lda bullet_y
-        cmp #OFF_SCREEN
+        cmp #OUT_OF_BOUNDS_Y
         beq .skipBullet
         
         ; Increase bullet x
         clc
         lda bullet_x
-        adc BULLET_SPEED
+        adc #BULLET_SPEED
         
      	; Compare if bullet x is bigger than screen width
         bcs .hideBullet
         sta bullet_x
       	
-        ; Draw bullet
-        lda bullet_y
+        ; Draw bullet 
         ldx #4
+        lda bullet_y
         sta SpriteBuf,x
-        lda #$0
-        sta SpriteBuf,x + 2
         lda bullet_x
         sta SpriteBuf,x + 3
         
 	rts
         
 .hideBullet
-	lda #$FA
+	lda #OUT_OF_BOUNDS_Y
         sta bullet_y
         
 .skipBullet
-        rts
-        
-        ; -- SKIPPED
-	lda #1		; A = 1
-        ldx #0		; X = 0
-.loop
-	sta Temp1	; save A
-        and #3		; keep lower 2 bits
-        clc		; clear carry before add
-        adc SpriteBuf,x	; add to sprite buffer
-	sta SpriteBuf,x ; store in sprite buffer
-        lda Temp1	; restore A
-        jsr NextRandom	; get next random number
-       	inx		; X = X + 1
-        cpx total_sprites
-        bne .loop	; loop until X wraps
-        rts		; return to caller      
+        rts     

@@ -43,7 +43,7 @@ HandleJoypad0:subroutine
         
         ;SPACE KEY PRESSED
         lda bullet_y
-        cmp #$FA
+        cmp #OUT_OF_BOUNDS_Y
         bne .noSpace ;Bullet already fired, skip
         lda player_x
         sta bullet_x
