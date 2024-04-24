@@ -8,15 +8,17 @@ OUT_OF_BOUNDS_Y = #$FA
 TOTAL_SPRITES 	= #8
 BULLET_SPEED 	= #4       
        
-temp_x		byte
-temp_y		byte
+temp		byte
+player_tile	word
+player_old_tile word
 player_x 	byte
-player_y 	byte	
+player_y 	byte
+speed_x		word
+speed_y		word
 joypad_0_in	byte
 scroll_pos	word
 game_state	byte
 SpriteBuf	equ	$200
-Temp1		byte
 bullet_x	byte
 bullet_y	byte
 
@@ -30,12 +32,14 @@ bullet_y	byte
 
 ;;;;; START OF CODE
 Start:
+	
 	NES_INIT
         jsr WaitSync
         jsr WaitSync
         jsr ClearRAM
         jsr WaitSync
 	jsr InitGame
+
         
 Gameloop:
 	jmp Gameloop
@@ -57,11 +61,13 @@ InitGame subroutine
 
 ;;;;; INTERRUPT HANDLERS
 NMIHandler:
-	;SAVE_REGS
-        jsr ScrollScreen
+	SAVE_REGS
         jsr HandleJoypad0
+        jsr GetPlayerTile
      	jsr HandleSprites
-	;RESTORE_REGS
+        jsr UpdateLevel
+        jsr ScrollScreen
+	RESTORE_REGS
 	rti
 
 

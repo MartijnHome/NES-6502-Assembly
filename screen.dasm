@@ -47,7 +47,6 @@ FillVRAM subroutine
 	sta PPU_DATA	
         inx
 	bne .loopD
-        
 .loopE:
 	lda Level2A,x
 	sta PPU_DATA	

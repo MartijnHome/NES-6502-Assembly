@@ -1,4 +1,4 @@
-InitLevel:
+InitLevel subroutine
 	jsr SetPalette		
         jsr FillVRAM	
         jsr InitSprites
@@ -17,7 +17,42 @@ InitLevel:
 	rts
 
 
+UpdateLevel subroutine
+	ldx player_old_tile
+        lda player_old_tile + 1
+	stx PPU_ADDR
+        sta PPU_ADDR
+        lda #$0
+        sta PPU_DATA
+        
+	clc
+	ldx #$20
+        lda player_tile
+        ldy player_tile + 1
+        cmp #32
+        bcc .firstTable
+        ldx #$24
+        sbc #32
+.firstTable:
+	clc
+        cpy #0
+        beq .correctRow
+        dey
+        adc #31
+        bcc .noCarry
+        inx
+.noCarry:
+        jmp .firstTable
+.correctRow:
+	stx player_old_tile
+        sta player_old_tile + 1
+	stx PPU_ADDR
+        sta PPU_ADDR
+        lda player_tile
+        sta PPU_DATA
+	rts
 
+    
 
 Level1A:
 	hex 97 97 97 97 97 97 97 97 97 97 97 97 97 97 97 97  97 97 97 97 97 97 97 97 97 97 97 97 97 97 97 97  
