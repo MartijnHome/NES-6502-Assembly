@@ -32,9 +32,9 @@ SetPalette subroutine
 
 FillVRAM subroutine
 	PPU_SETADDR $2000
-        lda #$40
+        lda #<Level
         sta temp
-        lda #$82
+        lda #>Level
         sta temp + 1
         ldy #0
         ldx #8
