@@ -8,7 +8,7 @@ OUT_OF_BOUNDS_Y = #$FA
 TOTAL_SPRITES 	= #8
 BULLET_SPEED 	= #4       
        
-temp		byte
+temp		word
 player_tile	word
 player_old_tile word
 player_x 	byte
@@ -17,6 +17,7 @@ speed_x		word
 speed_y		word
 joypad_0_in	byte
 scroll_pos	word
+scroll_table	byte
 game_state	byte
 SpriteBuf	equ	$200
 bullet_x	byte
@@ -65,7 +66,7 @@ NMIHandler:
         jsr HandleJoypad0
         jsr GetPlayerTile
      	jsr HandleSprites
-        jsr UpdateLevel
+        ;jsr UpdateLevel
         jsr ScrollScreen
 	RESTORE_REGS
 	rti
