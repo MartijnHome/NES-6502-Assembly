@@ -1,19 +1,22 @@
 ScrollScreen subroutine
-	;inc scroll_pos
-        clc
-        lda scroll_pos
-        adc #1
-        bcc .noNextTable
-        inc scroll_table
-.noNextTable:
-	sta scroll_pos
-        sta PPU_SCROLL
-        lda scroll_pos + 1
-        sta PPU_SCROLL
-        and #1	
-	ora #CTRL_NMI
+; update scroll position (must be done after VRAM updates)
+	inc scroll_pos	; increment low byte
+        bne .noinc	; Z flag set if wrapped to 0
+        inc scroll_pos + 1 	; increment high byte
+.noinc:
+; store X and Y scroll position
+        lda scroll_pos	; A -> low byte
+        sta PPU_SCROLL	; set horiz scroll
+        lda #0		; A -> zero
+        sta PPU_SCROLL	; set vert scroll
+; store 8th bit into name table selector
+; name table A or B ($2000 or $2400)
+	lda scroll_pos + 1	; load high byte
+        and #1		; select its low bit
+	ora #CTRL_NMI	; set rest of bits
         sta PPU_CTRL
-        rts
+        
+	rts
         
 
 

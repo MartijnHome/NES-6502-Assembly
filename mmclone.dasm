@@ -17,7 +17,6 @@ speed_x		word
 speed_y		word
 joypad_0_in	byte
 scroll_pos	word
-scroll_table	byte
 game_state	byte
 SpriteBuf	equ	$200
 bullet_x	byte
@@ -49,8 +48,9 @@ Gameloop:
 
 InitGame subroutine
         jsr InitLevel
-        ldx #1
-        stx game_state
+        lda #1
+        sta game_state
+        ;stx game_state
         rts
 
 
@@ -62,13 +62,24 @@ InitGame subroutine
 
 ;;;;; INTERRUPT HANDLERS
 NMIHandler:
+	clc
+	inc game_state
+        lda game_state
+        cmp #3
+        bne .go
+        lda #1
+        sta game_state
+.go:
 	SAVE_REGS
+        jsr UpdateLevel 
+        jsr ScrollScreen
         jsr HandleJoypad0
         jsr GetPlayerTile
      	jsr HandleSprites
-        ;jsr UpdateLevel
-        jsr ScrollScreen
 	RESTORE_REGS
+        
+        
+        
 	rti
 
 

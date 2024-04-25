@@ -78,6 +78,11 @@ MoveSprites: subroutine
         
 
 GetPlayerTile: subroutine
+	lda player_tile
+        sta player_old_tile
+        lda player_tile + 1
+        sta player_old_tile + 1
+        
 	lda player_y
         lsr
         lsr
@@ -87,16 +92,15 @@ GetPlayerTile: subroutine
         ldx #0
         clc
 	lda player_x
-        adc scroll_pos
-        bcc .skipNextTable
-        ldx #32
-.skipNextTable:
         lsr
         lsr
         lsr
-        stx player_tile
-        
-        clc
+        sta player_tile
+        lda scroll_pos
+        lsr
+        lsr
+        lsr
         adc player_tile
         sta player_tile
+        
 	rts
